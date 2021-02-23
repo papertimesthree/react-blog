@@ -1,10 +1,12 @@
+import { useState } from "react";
 import "./styles.css";
 
 export default function App() {
+  let [x, setX] = useState(1);
   return (
     <div className="App">
-      <h1>Hello CodeSandbox</h1>
-      <h2>Start editing to see some magic happen!</h2>
+      <h1>Hello - {x}</h1>
+      <button onClick={() => setX(x + 1)}>+</button>
     </div>
   );
 }
