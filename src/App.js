@@ -7,7 +7,7 @@ import {
   useParams
 } from "react-router-dom";
 import "./styles.css";
-import { fstore } from "./utils/fb";
+import { fstore, increment } from "./utils/fb";
 
 export default function App() {
   return (
@@ -41,15 +41,34 @@ function List() {
     loadTitles();
   }, []);
 
-  let [x, setX] = useState(1);
+  async function addView(id) {
+    await fstore
+      .collection("blog-posts")
+      .doc(id)
+      .update({ views: increment(1) });
+    let updatedDoc = await fstore.collection("blog-posts").doc(id).get();
+    let copy = [...titles];
+    for (let i = 0; i < copy.length; i++) {
+      if (copy[i].id === id) {
+        copy[i] = updatedDoc;
+        break;
+      }
+    }
+    setTitles(copy);
+  }
+
   return (
     <div className="App">
-      <h1>Hello - {x}</h1>
+      <h1>Posts</h1>
       {titles.map((t) => (
         <div key={t.id}>
-          <Link to={`/post/${t.data().title.replaceAll(" ", "-")}/${t.id}`}>
+          <Link
+            onClick={() => addView(t.id)}
+            to={`/post/${t.data().title.replaceAll(" ", "-")}/${t.id}`}
+          >
             {t.data().title}
           </Link>
+          -Views:{t.data().views}
         </div>
       ))}
     </div>
@@ -58,7 +77,7 @@ function List() {
 
 function ViewPost() {
   let params = useParams();
-  let [content, setContent] = useState("loading...");
+  let [content, setContent] = useState("Loading...");
 
   async function loadContent() {
     setContent("Loading...");
@@ -68,6 +87,7 @@ function ViewPost() {
   useEffect(() => {
     loadContent();
   }, [params.docid]);
+
   return (
     <div>
       <h3>{params.title}</h3>
