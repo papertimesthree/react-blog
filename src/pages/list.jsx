@@ -11,6 +11,7 @@ import { fstore } from "../utils/fb";
 function List() {
   let [titles, setTitles] = useState([]);
   let [page, setPage] = useState(1);
+  let [reachedEnd, setReachedEnd] = useState(false);
 
   useEffect(() => {
     loadTitles();
@@ -33,6 +34,7 @@ function List() {
       .limit(3)
       .get();
     setTitles(snapshot.docs);
+    if (snapshot.docs.length < 3) setReachedEnd(true);
     setPage(page + 1);
   }
 
@@ -63,7 +65,7 @@ function List() {
             Prev
           </a>
         )}
-        {page === 4 ? undefined : (
+        {reachedEnd ? undefined : (
           <a href="#" onClick={loadNext}>
             Next
           </a>
